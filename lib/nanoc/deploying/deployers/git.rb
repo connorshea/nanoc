@@ -39,6 +39,7 @@ module Nanoc::Deploying::Deployers
           begin
             run_shell_cmd(%W( git config --get remote.#{remote}.url ))
           rescue Nanoc::Extra::Piper::Error
+            # TODO: test
             raise "Please add a remote called '#{remote}' to the repo inside #{source_path}."
           end
         end
@@ -47,6 +48,7 @@ module Nanoc::Deploying::Deployers
         begin
           run_shell_cmd(%W( git checkout #{branch} ))
         rescue
+            # TODO: test
           raise "Branch '#{branch}' does not exist inside #{source_path}. Please create one and try again."
         end
 
@@ -66,6 +68,7 @@ module Nanoc::Deploying::Deployers
     private
 
     def run_shell_cmd(cmd)
+      # TODO: test
       if dry_run
         puts cmd.join(' ')
       else
@@ -76,6 +79,7 @@ module Nanoc::Deploying::Deployers
 
     def clean_repo?
       if dry_run && !File.exist?('.git')
+        # TODO: test
         true
       else
         stdout = StringIO.new
