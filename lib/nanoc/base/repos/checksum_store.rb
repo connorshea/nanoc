@@ -3,7 +3,7 @@ module Nanoc::Int
   # has changed since the last site compilation.
   #
   # @api private
-  class ChecksumStore < ::Nanoc::Int::Store
+  class ChecksumStore < ::Nanoc::Int::Store2
     include Nanoc::Int::ContractsSupport
 
     attr_accessor :objects
@@ -15,52 +15,48 @@ module Nanoc::Int
       super(Nanoc::Int::Store.tmp_path_for(env_name: (site.config.env_name if site), store_name: 'checksums'), 1)
 
       @objects = objects
-
-      @checksums = {}
     end
 
-    contract c_obj => C::Maybe[String]
     def [](obj)
-      @checksums[obj.reference]
+      db_get(key_for(obj))
     end
 
     contract c_obj => self
     def add(obj)
       if obj.is_a?(Nanoc::Int::Document)
-        @checksums[[obj.reference, :content]] = Nanoc::Int::Checksummer.calc_for_content_of(obj)
-        @checksums[[obj.reference, :attributes]] = Nanoc::Int::Checksummer.calc_for_attributes_of(obj)
+        db_set(content_key_for(obj), Nanoc::Int::Checksummer.calc_for_content_of(obj))
+        db_set(attributes_key_for(obj), Nanoc::Int::Checksummer.calc_for_attributes_of(obj))
       end
 
-      @checksums[obj.reference] = Nanoc::Int::Checksummer.calc(obj)
+      db_set(key_for(obj), Nanoc::Int::Checksummer.calc(obj))
+
+      flush
 
       self
     end
 
     contract c_obj => C::Maybe[String]
     def content_checksum_for(obj)
-      @checksums[[obj.reference, :content]]
+      db_get(content_key_for(obj))
     end
 
     contract c_obj => C::Maybe[String]
     def attributes_checksum_for(obj)
-      @checksums[[obj.reference, :attributes]]
+      db_get(attributes_key_for(obj))
     end
 
-    protected
+    private
 
-    def data
-      @checksums
+    def content_key_for(obj)
+      'content_' + obj.reference.inspect
     end
 
-    def data=(new_data)
-      references = Set.new(@objects.map(&:reference))
+    def attributes_key_for(obj)
+      'attributes_' + obj.reference.inspect
+    end
 
-      @checksums = {}
-      new_data.each_pair do |key, checksum|
-        if references.include?(key) || references.include?(key.first)
-          @checksums[key] = checksum
-        end
-      end
+    def key_for(obj)
+      'all_' + obj.reference.inspect
     end
   end
 end
