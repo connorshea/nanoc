@@ -240,6 +240,9 @@ module Nanoc::Int
     # @api private
     attr_reader :reps
 
+    # @api private
+    attr_reader :outdatedness_store
+
     def initialize(site, compiled_content_cache:, checksum_store:, rule_memory_store:, action_provider:, dependency_store:, outdatedness_checker:, reps:)
       @site = site
 
