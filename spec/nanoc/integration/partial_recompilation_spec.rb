@@ -32,6 +32,11 @@ EOS
     expect(File.file?('output/foo.html')).to be
     expect(File.file?('output/bar.html')).not_to be
 
+    expect { Nanoc::CLI.run(%w(compile --verbose)) rescue nil }
+      .to output(/skip.*output\/foo\.html/).to_stdout
+
+    # FIXME: wrong - outdatedness store is not yet saved
+    # and the outdatedness checker does not know about the outdatedness store
     expect { Nanoc::CLI.run(%w(show-data --no-color)) }.to(
       output(/^item \/foo\.md, rep default:\n  is not outdated/).to_stdout,
     )

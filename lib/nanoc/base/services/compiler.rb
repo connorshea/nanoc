@@ -353,7 +353,7 @@ module Nanoc::Int
       selector.each do |rep|
         handle_errors_while(rep) { compile_rep(rep, is_outdated: reps_to_recompile.include?(rep)) }
       end
-
+    ensure
       @outdatedness_store.store
     end
 
