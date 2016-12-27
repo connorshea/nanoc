@@ -12,8 +12,8 @@ describe Nanoc::Int::Compiler do
     )
   end
 
-  let(:checksum_store)         { :__irrelevant_checksum_store }
-  let(:rule_memory_store)      { :__irrelevant_rule_memory_store }
+  let(:checksum_store)    { Nanoc::Int::ChecksumStore.new(objects: items) }
+  let(:rule_memory_store) { Nanoc::Int::RuleMemoryStore.new }
 
   let(:dependency_store) { Nanoc::Int::DependencyStore.new(items.to_a) }
   let(:reps) { Nanoc::Int::ItemRepRepo.new }
@@ -50,10 +50,13 @@ describe Nanoc::Int::Compiler do
   end
 
   let(:memory) do
-    [
-      Nanoc::Int::ProcessingActions::Filter.new(:erb, {}),
-      Nanoc::Int::ProcessingActions::Snapshot.new(:last, nil),
-    ]
+    actions =
+      [
+        Nanoc::Int::ProcessingActions::Filter.new(:erb, {}),
+        Nanoc::Int::ProcessingActions::Snapshot.new(:last, nil),
+      ]
+
+    Nanoc::Int::RuleMemory.new(nil, actions: actions)
   end
 
   before do
